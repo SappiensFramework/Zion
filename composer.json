@@ -1,0 +1,26 @@
+{
+    "name": "jfranciscos4/Zion",
+    "authors": [
+        {
+            "name": "Jose Francisco",
+            "email": "silvaivctd@gmail.com"
+        }
+    ],
+    "require": {
+    	"twig/twig": "~1.0",
+        "doctrine/dbal": "2.3.5"        
+    },
+    "require-dev": {
+    	"phing/phing": "dev-master",
+    	"phpunit/phpunit": "4.5.*"
+    },
+    "autoload": {
+        "psr-0": {
+            "Zion" : "Lib",
+            "Pixel" : "Lib" 
+        }
+    },
+    "config": {
+        "bin-dir": "bin"
+    }
+}
