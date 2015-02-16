@@ -62,4 +62,11 @@ class GeralTest extends PHPUnit_Framework_TestCase
 		$valid = $this->instance->validaCPF($cpfTest);
 		$this->assertTrue($valid);
 	}
+	
+	public function testValidaCpfInvalido()
+	{
+		$cpfTest = null;
+		$valid = $this->instance->validaCPF($cpfTest);
+		$this->assertFalse($valid);
+	}
 }
