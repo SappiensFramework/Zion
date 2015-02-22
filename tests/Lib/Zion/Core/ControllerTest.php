@@ -44,10 +44,11 @@ use \Zion\Core\Controller;
 class ControllerTest extends PHPUnit_Framework_TestCase
 {	
 	private $instance;
+	private $strTest = 'teste';
 	
 	public function setUp()
 	{
-		$this->instance  = new \Zion\Core\Controller();
+		$this->instance  = new Controller();
 		parent::setUp();
 	}
 	
@@ -58,11 +59,30 @@ class ControllerTest extends PHPUnit_Framework_TestCase
 	/**
 	 * 
 	 */
-	public function testControle()
+	public function testControleComParametro()
 	{
-		$test = 'teste';
-		$this->instance->controle($test);
-		$this->assertEquals($test, $this->instance->getAcao());		
+		$this->instance->controle($this->strTest);
+		$this->assertEquals($this->strTest, $this->instance->getAcao());		
+	}
+	
+	public function testControleSemParametro()
+	{
+		$this->instance->controle(null);
+		$this->assertEquals('iniciar', $this->instance->getAcao());
+	}
+	
+	public function testjsonErro()
+	{
+		$expected = '{"sucesso":"false","retorno":"teste"}';
+		$actual = $this->instance->jsonErro($this->strTest);
+		$this->assertEquals($expected, $actual);
+	}
+	
+	public function testjsonSucesso()
+	{
+		$expected = '{"sucesso":"true","retorno":"teste"}';
+		$actual = $this->instance->jsonSucesso($this->strTest);
+		$this->assertEquals($expected, $actual);
 	}
 	
 }
