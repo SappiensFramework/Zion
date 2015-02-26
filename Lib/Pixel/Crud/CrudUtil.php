@@ -40,6 +40,15 @@ namespace Pixel\Crud;
 class CrudUtil
 {
 
+    private $con;
+    
+    public function __construct($banco = '') 
+    {
+            
+        $this->con = \Zion\Banco\Conexao::conectar($banco);                       
+        
+    }
+    
     public function getParametrosGrid($objForm)
     {
         $fil = new \Pixel\Filtro\Filtrar();
@@ -103,7 +112,7 @@ class CrudUtil
      * Metodo que processa e retorna partes de uma clausula SQL de acordo com os filtros
      * returna String
      */
-    public function getSqlFiltro($fil, $objForm, array $filtroDinamico, $queryBuilder)
+    public function getSqlFiltro($fil, $objForm, array $filtroDinamico, $queryBuilder, $modoBusca = 'LIKE')
     {
         //Recuperando Array de Campos
         $arrayForm = $objForm->getObjetos();
@@ -121,33 +130,137 @@ class CrudUtil
             }
         }
 
-        $this->sqlBuscaGeral($filtroDinamico, $queryBuilder);
+        $this->sqlBuscaGeral($filtroDinamico, $queryBuilder, $modoBusca);
     }
-
-    private function sqlBuscaGeral($filtroDinamico, $queryBuilder)
+    
+    private function modoBusca($modoBusca, $filtroDinamico)
     {
-        $buscaGral = \filter_input(\INPUT_GET, 'sisBuscaGeral');
+        
+        switch ($modoBusca) {
+            
+            case 'REGEXP':
 
-        if ($buscaGral) {
+                return $this->modoBuscaREGEXP($filtroDinamico);                
+
+            case 'LIKE':
+
+                return $this->modoBuscaLIKE($filtroDinamico);                
+            
+            case 'FULLTEXT':
+
+                return $this->modoBuscaFULLTEXT($filtroDinamico);                
+            
+        }
+        
+    }
+    
+    private function modoBuscaREGEXP($filtroDinamico)
+    {
+        
+        $buscaGeral = \filter_input(\INPUT_GET, 'sisBuscaGeral');
+        
+        if ($buscaGeral) {
+            
             $sql = ' (';
 
-            $campos = \str_replace(',', '|', $buscaGral);
+            $campos = \str_replace(',', '|', $buscaGeral);
 
             $total = \count($filtroDinamico);
-            $cont = 0;
+            $this->cont = 0;
+            
             foreach ($filtroDinamico as $coluna => $aliasSql) {
-                $cont++;
-
+                
+                $this->cont++;
                 $alias = $aliasSql ? $aliasSql . '.' : '';
 
                 $sql.= $alias . $coluna . " REGEXP '" . $campos . "'";
-
-                $sql.= $total == $cont ? '' : ' OR ';
+                $sql.= $total == $this->cont ? '' : ' OR ';
+                
             }
+           
+            $sql .= ') ';
 
-            $sql.= ') ';
+            return $sql;
+            
+        }        
+        
+    }
+    
+    private function modoBuscaLIKE($filtroDinamico)
+    {
+        
+        $buscaGeral = \filter_input(\INPUT_GET, 'sisBuscaGeral');
+        
+        if ($buscaGeral) {
+            
+            $sql = ' (';
 
+            $campos = \str_replace(',', '|', $buscaGeral);
+
+            $total = \count($filtroDinamico);
+            $this->cont = 0;
+            
+            foreach ($filtroDinamico as $coluna => $aliasSql) {
+                
+                $this->cont++;
+                $alias = $aliasSql ? $aliasSql . '.' : '';
+
+                $sql.= $alias . $coluna . " LIKE '%" . $campos . "%'";
+                $sql.= $total == $this->cont ? '' : ' OR ';
+                
+            }
+           
+            $sql .= ') ';
+
+            return $sql;
+            
+        }        
+        
+    }    
+    
+    private function modoBuscaFULLTEXT($filtroDinamico)
+    {
+        
+        $buscaGeral = \filter_input(\INPUT_GET, 'sisBuscaGeral');
+        
+        if ($buscaGeral) {
+            
+            $sql = ' MATCH(';
+
+            $campos = \str_replace(',', '|', $buscaGeral);
+
+            $total = \count($filtroDinamico);
+            $this->cont = 0;
+            
+            foreach ($filtroDinamico as $coluna => $aliasSql) {
+                
+                $this->cont++;
+                $alias = $aliasSql ? $aliasSql . '.' : '';
+
+                $sql .= $alias . $coluna;
+                $sql .= $total == $this->cont ? '' : ', ';
+                
+            }
+           
+            $sql .= ')';
+            $sql .= ' AGAINST(\'"' . $campos . '"\')' ;
+
+            return $sql;
+            
+        }        
+        
+    }    
+
+    private function sqlBuscaGeral($filtroDinamico, $queryBuilder, $modoBusca)
+    {
+        
+        $buscaGeral = \filter_input(\INPUT_GET, 'sisBuscaGeral');
+
+        if ($buscaGeral) {
+            
+            $sql = $this->modoBusca($modoBusca, $filtroDinamico);
             $queryBuilder->where($sql);
+            
         }
     }
 
@@ -157,7 +270,6 @@ class CrudUtil
      */
     public function insert($tabela, array $campos, $objForm)
     {
-        $con = \Zion\Banco\Conexao::conectar();
 
         $arrayValores = [];
         $arrayTipos = [];
@@ -209,9 +321,9 @@ class CrudUtil
 
         $camposVistoriados = $this->removeColchetes($campos);
 
-        $con->startTransaction();
+        $this->con->startTransaction();
 
-        $qb = $con->link()->createQueryBuilder();
+        $qb = $this->con->link()->createQueryBuilder();
 
         $qb->insert($tabela);
 
@@ -224,9 +336,9 @@ class CrudUtil
             $qb->setParameter($chave, $valor, $arrayTipos[$chave]);
         }
 
-        $con->executar($qb);
+        $this->con->executar($qb);
 
-        $uid = $con->ultimoId();
+        $uid = $this->con->ultimoId();
 
         /**
          * Tipos Especiais
@@ -253,14 +365,14 @@ class CrudUtil
             }
         }
 
-        $con->stopTransaction();
+        $this->con->stopTransaction();
 
         return $uid;
     }
 
     public function update($tabela, array $campos, $objForm, array $criterio, array $tipagemCriterio = [])
     {
-        $con = \Zion\Banco\Conexao::conectar();
+        
         $upload = new \Pixel\Arquivo\ArquivoUpload();
 
         $arrayValores = [];
@@ -313,9 +425,9 @@ class CrudUtil
 
         $camposVistoriados = $this->removeColchetes($campos);
 
-        $con->startTransaction();
+        $this->con->startTransaction();
 
-        $qb = $con->link()->createQueryBuilder();
+        $qb = $this->con->link()->createQueryBuilder();
 
         $qb->update($tabela);
 
@@ -343,7 +455,7 @@ class CrudUtil
 
         $codigo = \current($criterio);
         
-        $linhasAfetadas = $con->executar($qb);
+        $linhasAfetadas = $this->con->executar($qb);
 
 
         /**
@@ -373,16 +485,15 @@ class CrudUtil
             }
         }
 
-        $con->stopTransaction();
+        $this->con->stopTransaction();
 
         return $linhasAfetadas;
     }
 
     public function delete($tabela, array $criterio, array $tipagemCriterio = [])
     {
-        $con = \Zion\Banco\Conexao::conectar();
 
-        $qb = $con->link()->createQueryBuilder();
+        $qb = $this->con->link()->createQueryBuilder();
 
         $qb->delete($tabela, '');
 
@@ -399,7 +510,7 @@ class CrudUtil
                     ->setParameter($pos, $valor, $tipo);
         }
 
-        return $con->executar($qb);
+        return $this->con->executar($qb);
     }
 
     /**
@@ -509,14 +620,12 @@ class CrudUtil
 
     public function startTransaction()
     {
-        $con = \Zion\Banco\Conexao::conectar();
-        $con->startTransaction();
+        $this->con->startTransaction();
     }
 
     public function stopTransaction($erro = '')
     {
-        $con = \Zion\Banco\Conexao::conectar();
-        $con->stopTransaction($erro);
+        $this->con->stopTransaction($erro);
     }
 
     private function removeColchetes($campos)
