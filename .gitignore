@@ -2,3 +2,6 @@ bin/
 vendor/
 /.settings/
 /report/
+/.buildpath
+/.project
+/composer.lock
