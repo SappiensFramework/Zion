@@ -796,12 +796,19 @@ function sisDesmarcarTodos()
     }
 }
 
+/*BOTOES*/
+function botoesPadrao(nomeForm, acao)
+{
+    $("#" + nomeForm + " #sisSalvar").prop('disabled', acao);
+    $("#" + nomeForm + " #sisDescartar").prop('disabled', acao);
+}
+
 /* CADASTRO */
 function sisCadastrarLayoutPadrao(param) {
-    if(!param) {
+    if (!param) {
         param = {};
     }
-    $.ajax({type: "get", url: "?acao=cadastrar", data:param, dataType: "json"}).done(function (ret) {
+    $.ajax({type: "get", url: "?acao=cadastrar", data: param, dataType: "json"}).done(function (ret) {
         $("#sisContainerManu").html(ret.retorno);
     }).fail(function ()
     {
@@ -810,6 +817,8 @@ function sisCadastrarLayoutPadrao(param) {
 }
 
 function sisCadastrarPadrao(nomeForm, upload) {
+
+    botoesPadrao(nomeForm,true);
 
     var cod = $("#" + nomeForm + " #cod").val();
 
@@ -832,10 +841,12 @@ function sisCadastrarPadrao(nomeForm, upload) {
             sisFiltrarPadrao('');
         }
         else {
+            botoesPadrao(nomeForm,false);
             sisSetCrashAlert('Erro', ret.retorno);
         }
     }).fail(function ()
     {
+        botoesPadrao(nomeForm,false);
         sisMsgFailPadrao();
     });
 }
@@ -844,20 +855,20 @@ function sisCadastrarPadrao(nomeForm, upload) {
 
 function sisAlterarLayoutPadrao(param) {
 
-    if(!param) {
+    if (!param) {
         param = '';
     } else {
         var v;
-        for(v in param) {
+        for (v in param) {
             param += '&' + v + '=' + param[v];
         }
     }
-    
+
     if (sisContaCheck() < 1) {
         sisSetAlert('false', 'Nenhum registro selecionado.');
     } else {
 
-        $.ajax({type: "get", url: "?acao=alterar"+param, data: sisSerialize("#formGrid"), dataType: "json"}).done(function (ret) {
+        $.ajax({type: "get", url: "?acao=alterar" + param, data: sisSerialize("#formGrid"), dataType: "json"}).done(function (ret) {
             $("#sisContainerManu").html(ret.retorno);
         }).fail(function ()
         {
@@ -868,6 +879,7 @@ function sisAlterarLayoutPadrao(param) {
 
 function sisAlterarPadrao(nomeForm, upload) {
 
+    botoesPadrao(nomeForm,true);
     var cod = $("#" + nomeForm + " #cod").val();
 
     if (upload === true) {
@@ -889,10 +901,12 @@ function sisAlterarPadrao(nomeForm, upload) {
             sisFiltrarPadrao('');
         }
         else {
+            botoesPadrao(nomeForm,false);
             sisSetCrashAlert('Erro', ret.retorno);
         }
     }).fail(function ()
     {
+        botoesPadrao(nomeForm,false);
         sisMsgFailPadrao();
     });
 }
@@ -1302,14 +1316,14 @@ function validaSenhaUser(campo, url)
 {
     valor = campo.value;
 
-    if(valor.length >= 6 && valor.length <= 30) {
-        $.ajax({type: "post", url: url, dataType: "json", data:  {'s': valor}, beforeSend: function () {
-            $('#iconFA').attr('class', 'fa fa-refresh form-control-feedback');
-            $('#iconFA').attr('title', 'Verificando autenticidade da senha.');
-        }}).done(function (ret) {
+    if (valor.length >= 6 && valor.length <= 30) {
+        $.ajax({type: "post", url: url, dataType: "json", data: {'s': valor}, beforeSend: function () {
+                $('#iconFA').attr('class', 'fa fa-refresh form-control-feedback');
+                $('#iconFA').attr('title', 'Verificando autenticidade da senha.');
+            }}).done(function (ret) {
 
-            if(ret.sucesso === 'true'){
-                if(ret.retorno === 'true'){
+            if (ret.sucesso === 'true') {
+                if (ret.retorno === 'true') {
                     $('#iconFA').attr('class', 'fa fa-check-circle form-control-feedback');
                     $('#iconFA').attr('title', 'Senha autêntica.');
                 } else {
@@ -1325,7 +1339,7 @@ function validaSenhaUser(campo, url)
             $('#iconFA').attr('title', 'Não pudemos verificar a autenticidade de sua senha no momento, mas o faremos ao salvar.');
         });
     }
-    
+
     return true;
 >>>>>>> 42803835505f4f0c5442d44f4276d585d60d17a5
 }
