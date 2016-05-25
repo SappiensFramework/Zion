@@ -190,6 +190,10 @@ function sisFiltrarPadrao(p) {
     if(!p){
         $('#sisBuscaGridA').tagsinput('removeAll');
         $('#sisBuscaGridB').tagsinput('removeAll');
+    } else {
+        if(p.match(/[sisBuscaGeral]{13}/) === null){
+            p = p +"&sisBuscaGeral="+ $('#sisBuscaGridA').val();
+        }
     }
     
     $.ajax({type: "get", url: "?acao=filtrar", data: p, dataType: "json"}).done(function (ret) {
@@ -730,13 +734,13 @@ function chChosen(a, b, c)
 
 function sisImprimir()
 {
-    var queryString = ($('#sisQueryString').val() ? '&sisOrigem=n&'+ $('#sisQueryString').val() : '');
+    var queryString = ($('#sisQueryString').val() ? '&sisOrigem=n&'+ $('#sisQueryString').val() +'&sisBuscaGeral='+ $('#sisBuscaGridA').val() : '&sisBuscaGeral='+ $('#sisBuscaGridA').val());
     window.open("?acao=imprimir&sisModoImpressao=1"+ queryString, 'imprimir');
 }
 
 function sisSalvarCSV()
 {
-    var queryString = ($('#sisQueryString').val() ? '&sisOrigem=n&'+ $('#sisQueryString').val() : '');
+    var queryString = ($('#sisQueryString').val() ? '&sisOrigem=n&'+ $('#sisQueryString').val() +'&sisBuscaGeral='+ $('#sisBuscaGridA').val() : '&sisBuscaGeral='+ $('#sisBuscaGridA').val());
     window.open("?acao=salvarCSV&sisModoImpressao=1"+ queryString, 'imprimircsv');
 }
 
@@ -753,7 +757,7 @@ function sisSalvarPDF(orientacao) {
         
         $('#closePDF').click();
         
-        var queryString = ($('#sisQueryString').val() ? '&sisOrigem=n&'+ $('#sisQueryString').val() : '');
+        var queryString = ($('#sisQueryString').val() ? '&sisOrigem=n&'+ $('#sisQueryString').val() +'&sisBuscaGeral='+ $('#sisBuscaGridA').val() : '&sisBuscaGeral='+ $('#sisBuscaGridA').val());
 
         var ifr = $('<iframe/>', {
             id: 'iframeDownload',
