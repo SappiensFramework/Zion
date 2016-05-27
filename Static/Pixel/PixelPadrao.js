@@ -191,8 +191,10 @@ function sisFiltrarPadrao(p) {
         $('#sisBuscaGridA').tagsinput('removeAll');
         $('#sisBuscaGridB').tagsinput('removeAll');
     } else {
-        if(p.match(/[sisBuscaGeral]{13}/) === null){
-            p = p +"&sisBuscaGeral="+ $('#sisBuscaGridA').val();
+        if(typeof p == 'string'){
+            if(p.match(/[sisBuscaGeral]{13}/) === null){
+                p = p +"&sisBuscaGeral="+ $('#sisBuscaGridA').val();
+            }
         }
     }
     
