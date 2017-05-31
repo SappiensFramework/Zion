@@ -8,24 +8,24 @@
   Website do autor: www.braconsultoria.com.br/sappiens
   Email do autor: sappiens@braconsultoria.com.br
 
-  Website do projeto, equipe e documentaÃ§Ã£o: www.sappiens.com.br
+  Website do projeto, equipe e documentação: www.sappiens.com.br
 
-  Este programa Ã© software livre; vocÃª pode redistribuÃ­-lo e/ou
-  modificÃ¡-lo sob os termos da LicenÃ§a PÃºblica Geral GNU, conforme
-  publicada pela Free Software Foundation, versÃ£o 2.
+  Este programa é software livre; você pode redistribuí-lo e/ou
+  modificá-lo sob os termos da Licença Pública Geral GNU, conforme
+  publicada pela Free Software Foundation, versão 2.
 
-  Este programa Ã© distribuÃ­do na expectativa de ser Ãºtil, mas SEM
-  QUALQUER GARANTIA; sem mesmo a garantia implÃ­cita de
-  COMERCIALIZAÃ‡ÃƒO ou de ADEQUAÃ‡ÃƒO A QUALQUER PROPÃ“SITO EM
-  PARTICULAR. Consulte a LicenÃ§a PÃºblica Geral GNU para obter mais
+  Este programa é distribuído na expectativa de ser útil, mas SEM
+  QUALQUER GARANTIA; sem mesmo a garantia implícita de
+  COMERCIALIZAÇÃO ou de ADEQUAÇÃO A QUALQUER PROPÓSITO EM
+  PARTICULAR. Consulte a Licença Pública Geral GNU para obter mais
   detalhes.
 
-  VocÃª deve ter recebido uma cÃ³pia da LicenÃ§a PÃºblica Geral GNU
-  junto com este programa; se nÃ£o, escreva para a Free Software
+  Você deve ter recebido uma cópia da Licença Pública Geral GNU
+  junto com este programa; se não, escreva para a Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
   02111-1307, USA.
 
-  CÃ³pias da licenÃ§a disponÃ­veis em /Sappiens/_doc/licenca
+  Cópias da licença disponíveis em /Sappiens/_doc/licenca
 
  */
 
@@ -35,7 +35,7 @@
  * @version 1.0
  * @copyright 2014
  * 
- * ValidaÃ§Ã£o de inputs especÃ­ficamente Brasileiros.
+ * Validação de inputs específicamente Brasileiros.
  * 
  */
 
@@ -45,13 +45,13 @@ class Geral extends \Zion\Tratamento\Geral
 {
 
     /**
-     * @var object $instancia InstÃ¢ncia da classe singleton
+     * @var object $instancia Instância da classe singleton
      */
     private static $instancia;
 
     /**
      * Geral::__construct()
-     * Construtor, tÃ£o tosco quanto necessÃ¡rio para a implementaÃ§Ã£o singleton.
+     * Construtor, tão tosco quanto necessário para a implementação singleton.
      * 
      * @return void
      */
@@ -62,7 +62,7 @@ class Geral extends \Zion\Tratamento\Geral
 
     /**
      * Geral::instancia()
-     * Retorna sempre a mesma instÃ¢ncia da classe, de acordo com o Singleton pattern.
+     * Retorna sempre a mesma instância da classe, de acordo com o Singleton pattern.
      * 
      * @return object
      */
@@ -151,6 +151,7 @@ class Geral extends \Zion\Tratamento\Geral
     {
 
         $j = 0;
+        $num = [];
         for ($i = 0; $i < (strlen($cnpj)); $i++) {
             if (is_numeric($cnpj[$i])) {
                 $num[$j] = $cnpj[$i];
@@ -232,13 +233,23 @@ class Geral extends \Zion\Tratamento\Geral
             return($cepValido > 0 ? true : false);
         }
     }
+    
+    public function verificaTelefoneFixo($telefone)
+    {
+        if(preg_match('/\)[8-9]{1}|\)\s[8-9]{1}|[8-9]{1}|\)\s[8-9]{1}/', $telefone)){
+            return false;
+        } else {
+            return true;
+        }
+        
+    }
 
     /**
      * Geral::validaTelefone()
      * 
      * @param string $telefone
      * @return void
-     * @throws RuntimeException MÃ©todo ainda nÃ£o implementado.
+     * @throws RuntimeException Método ainda não implementado.
      */
     public function validaTelefone($telefone)
     {
@@ -253,6 +264,6 @@ class Geral extends \Zion\Tratamento\Geral
     
     public function validaEmail($email)
     {
-        return (preg_match("/[a-z]{1,}@[a-z]{1,}/", $email) ? true : false);
+        return (preg_match("/[a-z0-9]{1,}@[a-z0-9\.]{1,}/", $email) ? true : false);
     }
 }
